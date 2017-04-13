@@ -1,0 +1,10 @@
+{
+    "port": "4001",
+    "clientWindow": {
+        "windowWidth": 1920,
+        "windowHeight": 1080,
+        "positionX": 0,
+        "positionY": 0,
+        "hideCursor":  true,
+        "isAlwaysOnTop": false }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "mediaplayer",
+  "version": "1.0.0",
+  "description": "Media Player",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Razorfish",
+  "license": "ISC",
+  "devDependencies": {
+    "electron-prebuilt": "1.4.13"
+  },
+  "dependencies": {
+    "config": "1.25.1",
+    "socket.io-client": "1.7.3"
+  }
+}
