@@ -5,7 +5,7 @@
 </head>
 <body>
     <div class="fullScreenContainer">        
-        <video id="fullScreenVideo" class="fullScreenVideo hidden" muted="true" preload="auto"></video>
+        <video id="fullScreenVideo" class="fullScreenVideo" muted="true" preload="auto"></video>
         <img id="fullScreenImage" class="fullScreenImage">
         <div id="fullScreenText" class="fullScreenText"></div>
     </div>  
@@ -27,34 +27,5 @@
         </div>
     </div> 
     <script>require('../js/cuppingRoomDoors.js');</script> 
-    <script>
-        // onload="fadeIn(this)"
-        // fade out
-// function fadeOut(el){
-//   el.style.opacity = 1;
-
-//   (function fade() {
-//     if ((el.style.opacity -= .1) < 0) {
-//       el.style.display = "none";
-//     } else {
-//       requestAnimationFrame(fade);
-//     }
-//   })();
-// }
-
-// // fade in
-// function fadeIn(el, display){
-//   el.style.opacity = 0;
-//   el.style.display = display || "block";
-
-//   (function fade() {
-//     var val = parseFloat(el.style.opacity);
-//     if (!((val += .1) > 1)) {
-//       el.style.opacity = val;
-//       requestAnimationFrame(fade);
-//     }
-//   })();
-// }
-    </script> 
 </body>
 </html>

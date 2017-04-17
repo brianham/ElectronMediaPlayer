@@ -1,134 +1,114 @@
 const electron = window.require('electron'); 
 const ipcRenderer = electron.ipcRenderer;
 
-console.log('render thread');
-
-let videoPlayer_ = null;
 let fullScreenText = document.getElementById('fullScreenText');
 let fullScreenImage = document.getElementById('fullScreenImage');
-let video = document.getElementById('fullScreenText');
+let fullScreenVideo = document.getElementById('fullScreenVideo');
 
-fullScreenText.addEventListener("transitionend", function(event) {
-    fullScreenText.className = '';
-}, false);
+ipcRenderer.on('message', (event, arg) => { play(arg); });
 
-fullScreenImage.addEventListener("transitionend", function(event) {
-    fullScreenImage.className = '';
-}, false);
+function play(item) {
+    switch(item.mediaType) {
+        case 'image': {
+            renderImageAndText(item.localPath, item.durationMs, item.text).then(value => {
+                console.log('image playback completed');
+                ipcRenderer.send('async','image playback completed');
+            }).catch(error => {
 
-fullScreenImage.addEventListener('load', function()  { 
-    fullScreenText.className = 'fadeIn';
-    fullScreenImage.className = 'fadeIn';
-}, false);
-
-window.addEventListener('DOMContentLoaded', init);
-
-ipcRenderer.on('message', (event, arg) => {
-    play(arg);
-    ipcRenderer.send('async','message received on client render thread');
-});
-
-function init() {
-    try {
-        console.log('render thread init');
-        //document.getElementById('door1').innerHTML = "testing 123";
-        // videoPlayer_ = document.getElementById('videoPlayer');
-        // videoPlayer_.loop = false;
-        // videoPlayer_.src = "assets/mov_bbb.mp4";
-    } catch (error) {
-        console.log(error);
-    }
-
-    bindEvents();
-}
-
-function bindEvents() {
-    // videoPlayer_.addEventListener('error', function(e) {
-    //     videoError(e);   
-    // });
-}
-
-function videoError(error) {
-    //Do something
-}
-
-// "id" : this._id,
-// "text" : this._text,
-// "localPath" : this._localPath,
-// "activeStartDate" : this._activeStartDate,
-// "activeEndDate" : this._activeEndDate,
-// "durationMs" : this.durationMs,
-// "type" : this._type,
-// "target" : this._target,
-// "mediaType" : this.mediaType
-
-function play(playbackItem) {
-    try {
-        if (playbackItem.mediaType) {
-            switch(playbackItem.mediaType) {
-                case 'image': {
-                    fullScreenImage.src = playbackItem.localPath;
-                    fullScreenText.innerHTML = playbackItem.text;
-                    break;
-                }
-                case 'video': {
-                    break;
-                }
-                default: {
-                    break;
-                }
-            }
+            });
+            
+            break;
         }
-    } catch (error) {
-        console.log(error);
+        case 'video': {
+            renderVideoAndText(item.localPath, item.durationMs, item.text).then(value => {
+                console.log('video playback completed');
+                ipcRenderer.send('async','video playback completed');
+            }).catch(error => {
+
+            });
+
+            break;
+        }
+        case 'text': {
+            renderText(item.text, item.durationMs).then(value => {
+                console.log('text playback completed');
+                ipcRenderer.send('async','video playback completed');
+            }).catch(error => {
+
+            });
+
+            break;
+        }
+        default: {
+            break;
+        }
     }
 }
 
-function addClass(selector, myClass) {
+function renderImageAndText(path, duration, text) {
+    return new Promise((resolve, reject) => {        
+        fullScreenImage.addEventListener('load', function callback(event) { 
+            event.currentTarget.removeEventListener(event.type, callback);            
+            fullScreenImage.classList.add('fadeIn'); 
+            if (text) {
+                fullScreenText.innerHTML = text;
+                fullScreenText.classList.add('fadeIn');    
+            } else {
+                fullScreenText.innerHTML = '';
+            }
+        }); 
 
-  // get all elements that match our selector
-  elements = document.querySelectorAll(selector);
+        fullScreenImage.addEventListener("transitionend", function callback(event) {
+            event.currentTarget.removeEventListener(event.type, callback);         
+            window.setTimeout(() => { 
+                fullScreenImage.classList.remove('fadeIn'); 
+                if (text) fullScreenText.classList.remove('fadeIn');  
+                resolve();              
+            }, duration);
+        });
 
-  // add class to all chosen elements
-  for (var i=0; i<elements.length; i++) {
-    elements[i].classList.add(myClass);
-  }
+        fullScreenImage.src = path;
+    });
 }
 
-function removeClass(selector, myClass) {
+function renderVideoAndText(path, duration, text) {
+    return new Promise((resolve, reject) => {        
+        fullScreenVideo.addEventListener('canplay', function callback(event) { 
+            event.currentTarget.removeEventListener(event.type, callback);            
+            fullScreenVideo.play();
+            fullScreenVideo.classList.add('fadeIn');
+            if (text) {
+                fullScreenText.innerHTML = text;
+                fullScreenText.classList.add('fadeIn');    
+            } else {
+                fullScreenText.innerHTML = '';
+            }
+        }); 
 
-  // get all elements that match our selector
-  elements = document.querySelectorAll(selector);
+        fullScreenVideo.addEventListener('ended', function callback(event) { 
+            event.currentTarget.removeEventListener(event.type, callback); 
+            if (text) fullScreenText.classList.remove('fadeIn');  
+            fullScreenVideo.pause();
+            fullScreenVideo.src = '';
+            fullScreenVideo.load();
+            resolve();
+        }); 
 
-  // remove class from all chosen elements
-  for (var i=0; i<elements.length; i++) {
-    elements[i].classList.remove(myClass);
-  }
+        fullScreenVideo.src = path;
+    });
 }
 
-// function fadeIn(element) {
-//     var op = 0.1;  // initial opacity
-//     element.style.display = 'block';
-//     var timer = setInterval(function () {
-//         if (op >= 1){
-//             clearInterval(timer);
-//         }
-//         element.style.opacity = op;
-//         element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-//         op += op * 0.1;
-//     }, 10);
-// }
+function renderText(text, duration) {
+    return new Promise((resolve, reject) => {
+        fullScreenText.addEventListener("transitionend", function callback(event) {
+            event.currentTarget.removeEventListener(event.type, callback);         
+            window.setTimeout(() => { 
+                fullScreenText.classList.remove('fadeIn');  
+                resolve();              
+            }, duration);
+        });
 
-// function fadeOut(element) {
-//     var op = 1;  // initial opacity
-//     var timer = setInterval(function () {
-//         if (op <= 0.1){
-//             clearInterval(timer);
-//             element.style.display = 'none';
-//         }
-//         element.style.opacity = op;
-//         element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-//         op -= op * 0.1;
-//     }, 50);
-// }
-
+        fullScreenText.innerHTML = text;
+        fullScreenText.classList.add('fadeIn');
+    });
+}
