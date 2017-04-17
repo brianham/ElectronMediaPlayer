@@ -1,17 +1,11 @@
 const {electron, app, ipcMain, BrowserWindow} = require('electron');
-const config = require('config').get('clientWindow');
+const config = require('config');
 const path = require('path');
 const url = require('url');
 const io = require("socket.io-client");
 const socket = new io(`http://localhost:${4001}`);
-//const PlaybackManager = require('./app/js/playbackManager.js');
 
 let mainWindow = null;
-// const playbackManager = new PlaybackManager();
-
-// playbackManager.on('message', (arg) => {
-//   console.log(`playback manager event: ${arg}`);
-// });
 
 app.on('ready', initialize);
 
@@ -55,29 +49,45 @@ ipcMain.on('async', (event, arg) => {
 
 function initialize() {
   createWindow();
-  //playbackManager.play();
 }
 
 function createWindow() {
     try {
-        mainWindow = new BrowserWindow({ width: config.windowWidth, height: config.windowHeight, frame: false, fullscreenable: false, backgroundColor: '#000' });
-        mainWindow.setSize(config.windowWidth, config.windowHeight);
-        mainWindow.setPosition(config.positionX, config.positionY);
+
+        // Get current view config 
+        let currentView = config.get('views').filter((item) => {
+          return (item.name === config.get('currentView'));
+        })[0];
+
+        // Initialize Browser window (render thread)
+        mainWindow = new BrowserWindow({ width: currentView.windowWidth, height: currentView.windowHeight, frame: false, fullscreenable: false, backgroundColor: '#000' });
+        mainWindow.setSize(currentView.windowWidth, currentView.windowHeight);
+        mainWindow.setPosition(currentView.positionX, currentView.positionY);
         mainWindow.setMovable(false);
         mainWindow.setResizable(false);
-        mainWindow.setAlwaysOnTop(config.isAlwaysOnTop);
+        mainWindow.setAlwaysOnTop(currentView.isAlwaysOnTop);
         mainWindow.loadURL('file://' + __dirname + '/app/html/cuppingRoomDoors.html');
 
-        if (config.hideCursor == true) {
+        if (currentView.hideCursor == true) {
             mainWindow.webContents.insertCSS('*{cursor: none !important;}');
             mainWindow.webContents.executeJavaScript('document.documentElement.style.cursor = "none"; var allElements = document.getElementsByTagName("*"); for(var i=0;i<allElements.length;i++){ allElements[i].style.cursor = "none";  }');
         }
 
         mainWindow.on('closed', () => { mainWindow = null; });
 
+        // Allow debugging - turn off in production
         mainWindow.openDevTools();
 
     } catch (error) {
         console.log(error);
     }
 }
+
+
+//const PlaybackManager = require('./app/js/playbackManager.js');
+
+// const playbackManager = new PlaybackManager();
+
+// playbackManager.on('message', (arg) => {
+//   console.log(`playback manager event: ${arg}`);
+// });
