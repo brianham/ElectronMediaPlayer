@@ -1,5 +1,6 @@
 const electron = window.require('electron'); 
 const ipcRenderer = electron.ipcRenderer;
+const log = require('./logger').default;
 
 let fullScreenText = document.getElementById('fullScreenText');
 let fullScreenImage = document.getElementById('fullScreenImage');
@@ -10,31 +11,31 @@ ipcRenderer.on('message', (event, arg) => { play(arg); });
 function play(item) {
     switch(item.mediaType) {
         case 'image': {
+            log.info(`Image playback: path: ${item.localPath}, duration: ${item.durationMs}, text: ${item.text}`);
             renderImageAndText(item.localPath, item.durationMs, item.text).then(value => {
-                console.log('image playback completed');
                 ipcRenderer.send('async','image playback completed');
             }).catch(error => {
-
+                log.error(error);
             });
             
             break;
         }
         case 'video': {
+            log.info(`Video playback: path: ${item.localPath}, duration: ${item.durationMs}, text: ${item.text}`);
             renderVideoAndText(item.localPath, item.durationMs, item.text).then(value => {
-                console.log('video playback completed');
                 ipcRenderer.send('async','video playback completed');
             }).catch(error => {
-
+                log.error(error);
             });
 
             break;
         }
         case 'text': {
+            log.info(`Text only playback: text: ${item.text}, duration: ${item.durationMs}`);
             renderText(item.text, item.durationMs).then(value => {
-                console.log('text playback completed');
                 ipcRenderer.send('async','video playback completed');
             }).catch(error => {
-
+                log.error(error);
             });
 
             break;

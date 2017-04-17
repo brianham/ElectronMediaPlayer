@@ -12,7 +12,9 @@
     "electron-prebuilt": "1.4.13"
   },
   "dependencies": {
+    "bunyan": "1.8.10",
     "config": "1.25.1",
+    "node-mkdirp": "0.0.1",
     "socket.io-client": "1.7.3"
   }
 }

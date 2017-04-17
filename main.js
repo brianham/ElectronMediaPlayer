@@ -4,6 +4,7 @@ const path = require('path');
 const url = require('url');
 const io = require("socket.io-client");
 const socket = new io(`http://localhost:${4001}`);
+const log = require('./app/js/logger').default;
 
 let mainWindow = null;
 
@@ -21,12 +22,12 @@ app.on('activate', function () {
   if (mainWindow === null) { initialize(); }
 })
 
-socket.on('connect', () => {      
-  console.log(`client: connection made`);
+socket.on('connect', () => {   
+  log.info(`Electron client connection made`);   
 });
 
 socket.on('message', (payload) => {
-  console.log(`client: message received`);
+  
   switch (payload.method) {
     case 'play':
     {
@@ -59,6 +60,8 @@ function createWindow() {
           return (item.name === config.get('currentView'));
         })[0];
 
+        log.info(`Creating electron view: ${currentView.name}, width: ${currentView.windowWidth}, height: ${currentView.windowHeight}`);
+
         // Initialize Browser window (render thread)
         mainWindow = new BrowserWindow({ width: currentView.windowWidth, height: currentView.windowHeight, frame: false, fullscreenable: false, backgroundColor: '#000' });
         mainWindow.setSize(currentView.windowWidth, currentView.windowHeight);
@@ -79,7 +82,7 @@ function createWindow() {
         mainWindow.openDevTools();
 
     } catch (error) {
-        console.log(error);
+        log.error(error);
     }
 }
 

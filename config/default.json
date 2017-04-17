@@ -25,5 +25,24 @@
         "positionY": 0,
         "hideCursor":  true,
         "isAlwaysOnTop": false }       
-    ]
+    ],
+    "logging": {
+        "bunyanLogs": {
+            "mediaPlayer": {
+                "name": "electron",
+                "level": "trace",
+                "streams": [
+                {
+                    "type": "stdout"
+                },
+                {
+                    "type": "rotating-file",
+                    "path": "C:/Src/SBUX/logs/electron.log",
+                    "period": "1h",
+                    "count": 24,
+                    "isMainLog": true
+                }]
+            }
+        }    
+    }
 }
