@@ -69,7 +69,7 @@ function createWindow() {
         mainWindow.setMovable(false);
         mainWindow.setResizable(false);
         mainWindow.setAlwaysOnTop(currentView.isAlwaysOnTop);
-        mainWindow.loadURL('file://' + __dirname + '/app/html/cuppingRoomDoors.html');
+        mainWindow.loadURL(`file://${__dirname}/app/html/${currentView.name}.html`);
 
         if (currentView.hideCursor == true) {
             mainWindow.webContents.insertCSS('*{cursor: none !important;}');
