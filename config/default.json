@@ -1,5 +1,5 @@
 {
-    "port": "4001",
+    "socket-endpoint": "http://localhost:4001",
     "currentView": "cuppingRoomDoors",
     "views": [{
         "name": "cuppingRoomDoors",
@@ -28,8 +28,8 @@
     ],
     "logging": {
         "bunyanLogs": {
-            "mediaPlayer": {
-                "name": "electron",
+            "electron": {
+                "name": "Electron",
                 "level": "trace",
                 "streams": [
                 {

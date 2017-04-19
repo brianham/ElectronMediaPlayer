@@ -3,7 +3,7 @@ const bunyan = require('bunyan');
 const path = require('path');
 const mkdirP = require('mkdirP');
 
-function createLogger(key = "mediaPlayer") {
+function createLogger(key = "electron") {
     const logConfig = config.get("logging.bunyanLogs")[key];
 
     // You can't directly specify process.stdout or process.stderr in the configuration file, so provide a way to use them

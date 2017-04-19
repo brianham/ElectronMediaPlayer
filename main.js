@@ -3,8 +3,9 @@ const config = require('config');
 const path = require('path');
 const url = require('url');
 const io = require("socket.io-client");
-const socket = new io(`http://localhost:${4001}`);
 const log = require('./app/js/logger').default;
+const socketEndpoint = config.get('socket-endpoint');
+const socket = new io(socketEndpoint);
 
 let mainWindow = null;
 
@@ -23,9 +24,10 @@ app.on('activate', function () {
 })
 
 socket.on('connect', () => {   
-  log.info(`Electron client connection made`);   
+  log.info(`Electron client socket connection made: ${socketEndpoint}`);   
 });
 
+// Message from MediaPlayerManager
 socket.on('message', (payload) => {
   
   switch (payload.method) {
@@ -39,7 +41,6 @@ socket.on('message', (payload) => {
       break;
     }
     default: {
-
     }
   }
 });
@@ -60,8 +61,6 @@ function createWindow() {
           return (item.name === config.get('currentView'));
         })[0];
 
-        log.info(`Creating electron view: ${currentView.name}, width: ${currentView.windowWidth}, height: ${currentView.windowHeight}`);
-
         // Initialize Browser window (render thread)
         mainWindow = new BrowserWindow({ width: currentView.windowWidth, height: currentView.windowHeight, frame: false, fullscreenable: false, backgroundColor: '#000' });
         mainWindow.setSize(currentView.windowWidth, currentView.windowHeight);
@@ -71,11 +70,16 @@ function createWindow() {
         mainWindow.setAlwaysOnTop(currentView.isAlwaysOnTop);
         mainWindow.loadURL(`file://${__dirname}/app/html/${currentView.name}.html`);
 
+        // Insert CSS to hide cursor (optional)
         if (currentView.hideCursor == true) {
             mainWindow.webContents.insertCSS('*{cursor: none !important;}');
             mainWindow.webContents.executeJavaScript('document.documentElement.style.cursor = "none"; var allElements = document.getElementsByTagName("*"); for(var i=0;i<allElements.length;i++){ allElements[i].style.cursor = "none";  }');
         }
 
+        // Log window creation
+        log.info(`Loading client view: ${currentView.name}, width: ${currentView.windowWidth}, height: ${currentView.windowHeight}, xPos: ${currentView.positionX}, yPos: ${currentView.positionY}`);
+
+        // Handle window closed event
         mainWindow.on('closed', () => { mainWindow = null; });
 
         // Allow debugging - turn off in production
@@ -85,12 +89,3 @@ function createWindow() {
         log.error(error);
     }
 }
-
-
-//const PlaybackManager = require('./app/js/playbackManager.js');
-
-// const playbackManager = new PlaybackManager();
-
-// playbackManager.on('message', (arg) => {
-//   console.log(`playback manager event: ${arg}`);
-// });
