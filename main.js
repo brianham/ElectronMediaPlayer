@@ -82,9 +82,10 @@ function createWindow() {
         // Handle window closed event
         mainWindow.on('closed', () => { mainWindow = null; });
 
-        // Allow debugging - turn off in production
-        mainWindow.openDevTools();
-
+        // Allow debugging
+        if (config.get('openDevTools') === 'true') {
+          mainWindow.openDevTools();
+        }
     } catch (error) {
         log.error(error);
     }

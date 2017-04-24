@@ -1,4 +1,5 @@
 {
+    "openDevTools": "true",
     "socket-endpoint": "http://localhost:4001",
     "currentView": "cuppingRoomDoors",
     "views": [{
@@ -44,5 +45,5 @@
                 }]
             }
         }    
-    }
+    }    
 }
